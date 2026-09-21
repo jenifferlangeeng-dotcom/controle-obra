@@ -1,0 +1,150 @@
+/* ============================================================
+   DESIGN SYSTEM — Controle de Obra
+   Paleta definida no PLANO-DO-PROJETO.md: vinho/marsala + off-white
+   quente + dourado envelhecido, tema claro (funciona melhor no sol
+   do canteiro). Variações de tela ficam em estilos inline nas telas.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root { --font: 'Inter', -apple-system, system-ui, sans-serif; }
+
+html, body, #root {
+  margin: 0; padding: 0; height: 100%;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Variáveis do tema ── */
+.app {
+  --primary: #7D3C52;                       /* vinho/marsala */
+  --primary-tint: rgba(125,60,82,0.10);
+  --primary-tint-strong: rgba(125,60,82,0.20);
+  --primary-on: #FFFFFF;
+
+  --accent: #B08D57;                        /* dourado envelhecido — usar com moderação */
+  --accent-tint: rgba(176,141,87,0.14);
+
+  --bg: #FAF6F4;                            /* off-white quente */
+  --surface: #FFFFFF;
+  --surface-2: #F3ECE8;
+  --surface-press: rgba(46,42,40,0.04);
+
+  --text: #2E2A28;                          /* grafite */
+  --text-2: #6B615C;
+  --text-3: #A79C96;
+
+  --border: rgba(46,42,40,0.08);
+  --border-strong: rgba(46,42,40,0.16);
+  --divider: rgba(46,42,40,0.05);
+
+  /* Cores de status discretas — fora da paleta principal, como definido no plano */
+  --success: #5B6F55;  --success-tint: rgba(91,111,85,0.14);   /* verde-musgo: em dia / contratado */
+  --warn:    #B98A2E;  --warn-tint:    rgba(185,138,46,0.14);  /* âmbar: atenção / em cotação */
+  --danger:  #B4552F;  --danger-tint:  rgba(180,85,47,0.14);   /* terracota: atrasado / a contratar */
+  --info:    #5B7B8A;  --info-tint:    rgba(91,123,138,0.12);
+
+  --shadow-card: 0 1px 2px rgba(46,42,40,0.04), 0 4px 14px rgba(46,42,40,0.05);
+  --shadow-pop:  0 8px 32px rgba(46,42,40,0.12), 0 1px 3px rgba(46,42,40,0.06);
+
+  --radius-card: 16px; --radius-btn: 12px; --radius-input: 12px; --radius-pill: 999px;
+  --tap-h: 52px; --tap-h-sm: 40px;
+
+  --display: 26px; --title: 18px; --body: 15px; --caption: 13px; --micro: 11px;
+
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ── Tipografia ── */
+.t-display { font-size: var(--display); font-weight: 700; letter-spacing: -0.02em; }
+.t-title   { font-size: var(--title); font-weight: 600; }
+.t-strong  { font-weight: 600; }
+.t-caption { font-size: var(--caption); color: var(--text-2); }
+.t-micro   { font-size: var(--micro); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ── Botões ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: var(--tap-h); padding: 0 18px; border: 0; cursor: pointer;
+  border-radius: var(--radius-btn); font-family: var(--font); font-size: var(--body);
+  font-weight: 600; transition: filter .15s, background .15s;
+}
+.btn-sm { height: var(--tap-h-sm); padding: 0 14px; font-size: var(--caption); }
+.btn-primary   { background: var(--primary); color: var(--primary-on); }
+.btn-primary:hover { filter: brightness(0.95); }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost     { background: transparent; color: var(--primary); }
+.btn:disabled  { opacity: .5; cursor: not-allowed; }
+
+/* ── Cartões ── */
+.card      { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 16px; }
+.card-flat { background: var(--surface); border-radius: var(--radius-card); border: 1px solid var(--border); padding: 16px; }
+.card-tint { background: var(--primary-tint); border-radius: var(--radius-card); padding: 16px; }
+
+/* ── Chips / etiquetas de status ── */
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px;
+  border-radius: var(--radius-pill); font-size: var(--caption); font-weight: 600;
+  background: var(--surface-2); color: var(--text-2); }
+.chip.success { background: var(--success-tint); color: var(--success); }
+.chip.warn    { background: var(--warn-tint);    color: var(--warn); }
+.chip.danger  { background: var(--danger-tint);  color: var(--danger); }
+.chip.info    { background: var(--info-tint);    color: var(--info); }
+
+/* ── Campos de formulário ── */
+.ipt { width: 100%; height: var(--tap-h); padding: 0 14px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: var(--radius-input);
+  font-family: var(--font); font-size: var(--body); background: var(--surface); color: var(--text); }
+.ipt:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-tint); }
+.field-label { font-size: var(--caption); font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block; }
+
+/* ── Layout helpers ── */
+.row-flex    { display: flex; align-items: center; gap: 12px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.stack   { display: flex; flex-direction: column; }
+.stack-1 { display: flex; flex-direction: column; gap: 8px; }
+.stack-2 { display: flex; flex-direction: column; gap: 12px; }
+.stack-3 { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Estado vazio ── */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 10px; padding: 56px 24px; color: var(--text-2); }
+.empty-state svg { color: var(--text-3); }
+
+/* ── Banner de alerta ── */
+.banner-alerta { display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  border-radius: var(--radius-card); background: var(--danger-tint); color: var(--danger);
+  font-size: var(--body); font-weight: 600; margin-bottom: 16px; }
+
+/* ── Shell: bottom nav (mobile) + sidebar (desktop) ── */
+.app-body { min-height: 100vh; padding-bottom: 76px; }
+.page-header { padding: 20px 20px 4px; }
+.page-content { padding: 16px 20px 24px; }
+.bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; height: 64px;
+  display: flex; background: var(--surface); border-top: 1px solid var(--border); z-index: 10; }
+.bottom-nav button { flex: 1; border: 0; background: transparent; color: var(--text-3);
+  font-size: var(--micro); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; }
+.bottom-nav button[aria-current="true"] { color: var(--primary); }
+
+.app[data-desktop="1"] .app-body { padding-bottom: 0; padding-left: 240px; }
+.app[data-desktop="1"] .bottom-nav { display: none; }
+.sidebar { display: none; }
+.app[data-desktop="1"] .sidebar { display: flex; flex-direction: column; gap: 4px;
+  position: fixed; left: 0; top: 0; bottom: 0; width: 240px; padding: 20px 12px;
+  background: var(--surface); border-right: 1px solid var(--border); }
+.sidebar .brand { padding: 8px 12px 20px; font-size: var(--title); font-weight: 700; color: var(--primary); }
+.sidebar button { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px;
+  border: 0; background: transparent; border-radius: var(--radius-btn); color: var(--text-2);
+  font-family: var(--font); font-size: var(--body); cursor: pointer; text-align: left; }
+.sidebar button[aria-current="true"] { background: var(--primary-tint); color: var(--primary); font-weight: 600; }
+
+/* ── Tela de login ── */
+.login-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 24px; gap: 24px; }
+.login-card { width: 100%; max-width: 360px; }
