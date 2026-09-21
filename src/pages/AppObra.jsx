@@ -3,7 +3,7 @@ import { Icon } from '../components/index.jsx'
 import ContratacoesPendentes from '../screens/contratacoes.jsx'
 import LancamentoAvanco from '../screens/avanco.jsx'
 import MetaFinanceira from '../screens/meta.jsx'
-import PedidosMaterial from '../screens/pedidos.jsx'
+import Materiais from '../screens/materiais.jsx'
 import MeuPerfil from '../screens/perfil.jsx'
 
 // Shell única para os dois perfis (Engenheira e Engenheiro de Campo): o menu
@@ -14,7 +14,7 @@ import MeuPerfil from '../screens/perfil.jsx'
 const ITENS = [
   { screen: 'contratacoes', label: 'Pendências', icon: 'pendencias' },
   { screen: 'avanco', label: 'Avanço', icon: 'avanco' },
-  { screen: 'pedidos', label: 'Pedidos', icon: 'pedidos' },
+  { screen: 'materiais', label: 'Materiais', icon: 'pedidos' },
   { screen: 'meta', label: 'Meta', icon: 'meta' },
   { screen: 'perfil', label: 'Perfil', icon: 'perfil' },
 ]
@@ -35,7 +35,7 @@ export default function AppObra({ perfil, onSair }) {
   switch (route.screen) {
     case 'contratacoes': body = <ContratacoesPendentes goto={goto} perfil={perfil} />; break
     case 'avanco': body = <LancamentoAvanco goto={goto} perfil={perfil} />; break
-    case 'pedidos': body = <PedidosMaterial goto={goto} perfil={perfil} />; break
+    case 'materiais': body = <Materiais goto={goto} perfil={perfil} />; break
     case 'meta': body = <MetaFinanceira goto={goto} perfil={perfil} />; break
     case 'perfil': body = <MeuPerfil perfil={perfil} onSair={onSair} />; break
     default: body = <ContratacoesPendentes goto={goto} perfil={perfil} />
