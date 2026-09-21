@@ -57,6 +57,22 @@ export function Icon({ name, size = 20 }) {
           <path d="M12 10v4M12 17.5v.01" />
         </svg>
       )
+    case 'mais':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="5" r="1.4" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+          <circle cx="12" cy="19" r="1.4" fill="currentColor" />
+        </svg>
+      )
+    case 'planejamento':
+      return (
+        <svg {...common}>
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M3 9h18M8 4v-1M16 4v-1" />
+          <path d="M7 13l2.5 2.5L14 11" />
+        </svg>
+      )
     default:
       return null
   }

@@ -156,6 +156,15 @@ html, body, #root {
 .resumo-linha .rotulo { color: var(--text-2); font-size: var(--caption); }
 .resumo-linha .valor { font-weight: 600; text-align: right; }
 
+/* ── Painel "Mais" (mobile: itens que não cabem nos 5 da barra) ── */
+.mais-painel { position: fixed; left: 12px; right: 12px; bottom: 76px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card);
+  box-shadow: var(--shadow-pop); padding: 8px; z-index: 20; display: flex; flex-direction: column; gap: 2px; }
+.mais-painel button { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px;
+  border: 0; background: transparent; border-radius: var(--radius-btn); color: var(--text);
+  font-family: var(--font); font-size: var(--body); cursor: pointer; text-align: left; }
+.mais-painel button[aria-current="true"] { background: var(--primary-tint); color: var(--primary); font-weight: 600; }
+
 @media print {
   .sidebar, .bottom-nav, .no-print { display: none !important; }
   .app[data-desktop="1"] .app-body { padding: 0; }
