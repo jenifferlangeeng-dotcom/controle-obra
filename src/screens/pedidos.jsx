@@ -14,6 +14,42 @@ const STATUS = {
 
 const FORM_VAZIO = { numero_pedido: '', material: '', fornecedor: '', telefone_fornecedor: '', frente_afetada: '', data_pedido: '', prazo_entrega: '' }
 
+function ResumoParaImpressao({ pedido, onVoltar }) {
+  const st = STATUS[statusExibido(pedido)]
+  return (
+    <div>
+      <div className="page-content stack-3 no-print">
+        <button className="btn btn-secondary" onClick={onVoltar}>← Voltar</button>
+      </div>
+      <div className="page-content resumo-impressao stack-3">
+        <div className="stack-1">
+          <div className="t-display" style={{ color: 'var(--primary)' }}>Controle de Obra</div>
+          <div className="t-caption">Resumo do pedido de material</div>
+        </div>
+
+        <div className="card-flat">
+          {pedido.numero_pedido ? (
+            <div className="resumo-linha"><span className="rotulo">Número do pedido</span><span className="valor">{pedido.numero_pedido}</span></div>
+          ) : null}
+          <div className="resumo-linha"><span className="rotulo">Material</span><span className="valor">{pedido.material}</span></div>
+          <div className="resumo-linha"><span className="rotulo">Fornecedor</span><span className="valor">{pedido.fornecedor}</span></div>
+          {pedido.telefone_fornecedor ? (
+            <div className="resumo-linha"><span className="rotulo">Telefone</span><span className="valor">{pedido.telefone_fornecedor}</span></div>
+          ) : null}
+          <div className="resumo-linha"><span className="rotulo">Frente afetada</span><span className="valor">{pedido.frente_afetada}</span></div>
+          <div className="resumo-linha"><span className="rotulo">Data do pedido</span><span className="valor">{formatarDataBR(pedido.data_pedido)}</span></div>
+          <div className="resumo-linha"><span className="rotulo">Prazo de entrega</span><span className="valor">{formatarDataBR(pedido.prazo_entrega)}</span></div>
+          <div className="resumo-linha"><span className="rotulo">Status</span><span className="valor"><span className={`chip ${st.chip}`}>{st.rotulo}</span></span></div>
+        </div>
+
+        <button className="btn btn-primary no-print" onClick={() => window.print()}>
+          Imprimir / Salvar como PDF
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function PedidosMaterial() {
   const [pedidos, setPedidos] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -22,6 +58,7 @@ export default function PedidosMaterial() {
   const [form, setForm] = useState(FORM_VAZIO)
   const [salvando, setSalvando] = useState(false)
   const [busca, setBusca] = useState('')
+  const [resumoPedido, setResumoPedido] = useState(null)
 
   async function carregar() {
     setCarregando(true)
@@ -61,6 +98,10 @@ export default function PedidosMaterial() {
     } catch (e) {
       setErro('Não foi possível confirmar a entrega. ' + e.message)
     }
+  }
+
+  if (resumoPedido) {
+    return <ResumoParaImpressao pedido={resumoPedido} onVoltar={() => setResumoPedido(null)} />
   }
 
   return (
@@ -123,6 +164,9 @@ export default function PedidosMaterial() {
                       </button>
                     </div>
                   ) : null}
+                  <button className="btn btn-ghost btn-sm" onClick={() => setResumoPedido(item)}>
+                    Ver resumo para imprimir
+                  </button>
                 </div>
               )
             })}

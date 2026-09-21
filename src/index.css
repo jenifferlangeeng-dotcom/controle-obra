@@ -148,3 +148,17 @@ html, body, #root {
 .login-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center;
   justify-content: center; padding: 24px; gap: 24px; }
 .login-card { width: 100%; max-width: 360px; }
+
+/* ── Resumo para impressão / salvar como PDF ── */
+.resumo-impressao { max-width: 480px; margin: 0 auto; }
+.resumo-linha { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0;
+  border-bottom: 1px solid var(--divider); }
+.resumo-linha .rotulo { color: var(--text-2); font-size: var(--caption); }
+.resumo-linha .valor { font-weight: 600; text-align: right; }
+
+@media print {
+  .sidebar, .bottom-nav, .no-print { display: none !important; }
+  .app[data-desktop="1"] .app-body { padding: 0; }
+  .app-body { padding: 0; }
+  body, .app { background: #fff; }
+}
