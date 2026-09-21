@@ -34,6 +34,15 @@ export function Icon({ name, size = 20 }) {
           <path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5" />
         </svg>
       )
+    case 'pedidos':
+      return (
+        <svg {...common}>
+          <rect x="2" y="7" width="12" height="9" rx="1" />
+          <path d="M14 10h4l3 3v3h-7z" />
+          <circle cx="6.5" cy="18" r="1.6" />
+          <circle cx="17" cy="18" r="1.6" />
+        </svg>
+      )
     case 'sair':
       return (
         <svg {...common}>

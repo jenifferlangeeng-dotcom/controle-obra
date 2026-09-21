@@ -2,5 +2,6 @@
   "profiles": ["id", "auth_uid", "nome", "email", "role", "created_at"],
   "contratacoes_pendentes": ["id", "frente", "tipo", "empreiteiro", "descricao", "data_limite", "status", "valor_negociado", "data_resolucao", "created_at"],
   "lancamentos_avanco": ["id", "frente", "tipo", "empreiteiro", "data_lancamento", "percentual_executado", "observacao", "created_at"],
-  "metas_financeiras": ["id", "mes_referencia", "meta_percentual", "meta_valor", "created_at"]
+  "metas_financeiras": ["id", "mes_referencia", "meta_percentual", "meta_valor", "created_at"],
+  "pedidos_material": ["id", "material", "fornecedor", "telefone_fornecedor", "frente_afetada", "data_pedido", "prazo_entrega", "status", "created_at"]
 }

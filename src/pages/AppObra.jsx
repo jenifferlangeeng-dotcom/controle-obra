@@ -3,14 +3,18 @@ import { Icon } from '../components/index.jsx'
 import ContratacoesPendentes from '../screens/contratacoes.jsx'
 import LancamentoAvanco from '../screens/avanco.jsx'
 import MetaFinanceira from '../screens/meta.jsx'
+import PedidosMaterial from '../screens/pedidos.jsx'
 import MeuPerfil from '../screens/perfil.jsx'
 
 // Shell única para os dois perfis (Engenheira e Engenheiro de Campo): o menu
 // é idêntico para ambos, per PRD-FRONTEND.md — a única diferença de acesso é
 // dentro da tela de Meta Financeira (editar a meta), não no menu.
+// 5 itens é o teto do piso de interface (references/interface.md) — não
+// acrescentar um 6º sem tirar algum daqui.
 const ITENS = [
   { screen: 'contratacoes', label: 'Pendências', icon: 'pendencias' },
   { screen: 'avanco', label: 'Avanço', icon: 'avanco' },
+  { screen: 'pedidos', label: 'Pedidos', icon: 'pedidos' },
   { screen: 'meta', label: 'Meta', icon: 'meta' },
   { screen: 'perfil', label: 'Perfil', icon: 'perfil' },
 ]
@@ -31,6 +35,7 @@ export default function AppObra({ perfil, onSair }) {
   switch (route.screen) {
     case 'contratacoes': body = <ContratacoesPendentes goto={goto} perfil={perfil} />; break
     case 'avanco': body = <LancamentoAvanco goto={goto} perfil={perfil} />; break
+    case 'pedidos': body = <PedidosMaterial goto={goto} perfil={perfil} />; break
     case 'meta': body = <MetaFinanceira goto={goto} perfil={perfil} />; break
     case 'perfil': body = <MeuPerfil perfil={perfil} onSair={onSair} />; break
     default: body = <ContratacoesPendentes goto={goto} perfil={perfil} />

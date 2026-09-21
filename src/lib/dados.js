@@ -72,6 +72,43 @@ export async function listarMetas() {
   return data
 }
 
+export async function listarPedidosMaterial() {
+  const { data, error } = await supabase
+    .from('pedidos_material')
+    .select('*')
+    .order('prazo_entrega', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function criarPedidoMaterial(dados) {
+  const { data, error } = await supabase
+    .from('pedidos_material')
+    .insert({
+      material: dados.material,
+      fornecedor: dados.fornecedor,
+      telefone_fornecedor: dados.telefone_fornecedor || null,
+      frente_afetada: dados.frente_afetada,
+      data_pedido: dados.data_pedido,
+      prazo_entrega: dados.prazo_entrega,
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function marcarEntregue(id) {
+  const { data, error } = await supabase
+    .from('pedidos_material')
+    .update({ status: 'entregue' })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 export async function salvarMeta(dados) {
   const { data, error } = await supabase
     .from('metas_financeiras')
