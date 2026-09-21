@@ -4,5 +4,6 @@
   "lancamentos_avanco": ["id", "frente", "tipo", "empreiteiro", "data_lancamento", "percentual_executado", "observacao", "created_at"],
   "metas_financeiras": ["id", "mes_referencia", "meta_percentual", "meta_valor", "created_at"],
   "pedidos_material": ["id", "numero_pedido", "material", "fornecedor", "telefone_fornecedor", "frente_afetada", "data_pedido", "prazo_entrega", "status", "created_at", "material_id", "quantidade", "prioridade", "historico", "qtd_bate_nf", "estado_ok", "avarias", "foto_nf_url"],
-  "materiais_catalogo": ["id", "nome", "unidade", "categoria", "created_at"]
+  "materiais_catalogo": ["id", "nome", "unidade", "categoria", "created_at"],
+  "atividades": ["id", "pai_id", "ordem", "titulo", "data_inicio", "data_fim", "progresso", "arquivada", "created_at", "updated_at"]
 }

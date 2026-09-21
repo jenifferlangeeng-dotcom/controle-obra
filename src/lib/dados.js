@@ -184,6 +184,55 @@ export async function linkFotoNF(caminho) {
   return data.signedUrl
 }
 
+// Planejamento — EAP. O banco guarda em snake_case (pai_id, data_inicio,
+// data_fim); aqui é onde isso vira o formato que o resto do app já usa
+// (paiId, dataInicio, dataFim), pra não espalhar a tradução pela tela.
+function mapAtividade(linha) {
+  return {
+    id: linha.id,
+    paiId: linha.pai_id,
+    ordem: linha.ordem,
+    titulo: linha.titulo,
+    dataInicio: linha.data_inicio,
+    dataFim: linha.data_fim,
+    progresso: Number(linha.progresso),
+    arquivada: linha.arquivada,
+  }
+}
+
+export async function listarAtividades() {
+  const { data, error } = await supabase.from('atividades').select('*').order('id', { ascending: true })
+  if (error) throw error
+  return data.map(mapAtividade)
+}
+
+export async function criarAtividade({ titulo, dataInicio, dataFim, paiId, ordem }) {
+  const { data, error } = await supabase
+    .from('atividades')
+    .insert({ titulo, data_inicio: dataInicio, data_fim: dataFim, pai_id: paiId ?? null, ordem })
+    .select()
+    .single()
+  if (error) throw error
+  return mapAtividade(data)
+}
+
+export async function editarAtividade(id, { titulo, dataInicio, dataFim }) {
+  const { data, error } = await supabase
+    .from('atividades')
+    .update({ titulo, data_inicio: dataInicio, data_fim: dataFim })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return mapAtividade(data)
+}
+
+export async function arquivarAtividade(id, arquivada) {
+  const { data, error } = await supabase.from('atividades').update({ arquivada }).eq('id', id).select().single()
+  if (error) throw error
+  return mapAtividade(data)
+}
+
 export async function salvarMeta(dados) {
   const { data, error } = await supabase
     .from('metas_financeiras')

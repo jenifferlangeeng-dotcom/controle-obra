@@ -29,7 +29,7 @@ function NoEAP({ no, nivel, onAdicionarSub, onEditar, onArquivar }) {
 }
 
 export default function EAP() {
-  const { atividades, criarAtividade, editarAtividade, arquivarAtividade } = usePlanejamento()
+  const { atividades, carregando, erro: erroCarga, recarregar, criarAtividade, editarAtividade, arquivarAtividade } = usePlanejamento()
   const [verArquivadas, setVerArquivadas] = useState(false)
 
   const [modo, setModo] = useState(null) // null | 'nova' | 'editar'
@@ -37,6 +37,7 @@ export default function EAP() {
   const [editandoId, setEditandoId] = useState(null)
   const [form, setForm] = useState(FORM_VAZIO)
   const [erro, setErro] = useState('')
+  const [salvando, setSalvando] = useState(false)
 
   const arvore = construirArvore(atividades)
   const arquivadas = atividades.filter((a) => a.arquivada)
@@ -61,22 +62,48 @@ export default function EAP() {
     setErro('')
   }
 
-  function salvar(e) {
+  async function salvar(e) {
     e.preventDefault()
     if (!form.titulo || !form.dataInicio || !form.dataFim) return
     if (form.dataFim < form.dataInicio) {
       setErro('A data de fim não pode ser antes da data de início.')
       return
     }
-    if (modo === 'nova') {
-      criarAtividade({ ...form, paiId })
-    } else if (modo === 'editar') {
-      editarAtividade(editandoId, form)
+    setSalvando(true)
+    try {
+      if (modo === 'nova') {
+        await criarAtividade({ ...form, paiId })
+      } else if (modo === 'editar') {
+        await editarAtividade(editandoId, form)
+      }
+      fechar()
+    } catch (e) {
+      setErro('Não foi possível salvar. ' + e.message)
+    } finally {
+      setSalvando(false)
     }
-    fechar()
+  }
+
+  async function arquivar(id, valor) {
+    try {
+      await arquivarAtividade(id, valor)
+    } catch (e) {
+      setErro('Não foi possível arquivar. ' + e.message)
+    }
   }
 
   const opcoesPai = atividades.filter((a) => !a.arquivada)
+
+  if (carregando) return <div className="t-caption">Carregando…</div>
+
+  if (erroCarga) {
+    return (
+      <div className="card-flat stack-2">
+        <div className="t-caption" style={{ color: 'var(--danger)' }}>{erroCarga}</div>
+        <button className="btn btn-secondary" onClick={recarregar}>Tentar de novo</button>
+      </div>
+    )
+  }
 
   return (
     <div className="stack-3">
@@ -92,7 +119,7 @@ export default function EAP() {
       ) : (
         <div className="stack-2">
           {arvore.map((no) => (
-            <NoEAP key={no.id} no={no} nivel={0} onAdicionarSub={abrirNova} onEditar={abrirEdicao} onArquivar={arquivarAtividade} />
+            <NoEAP key={no.id} no={no} nivel={0} onAdicionarSub={abrirNova} onEditar={abrirEdicao} onArquivar={arquivar} />
           ))}
         </div>
       )}
@@ -106,7 +133,7 @@ export default function EAP() {
             arquivadas.map((a) => (
               <div key={a.id} className="card-flat row-between">
                 <div className="t-strong">{a.titulo}</div>
-                <button className="btn btn-secondary btn-sm" onClick={() => arquivarAtividade(a.id, false)}>Desarquivar</button>
+                <button className="btn btn-secondary btn-sm" onClick={() => arquivar(a.id, false)}>Desarquivar</button>
               </div>
             ))
           )}
@@ -144,7 +171,7 @@ export default function EAP() {
           {erro ? <div className="t-caption" style={{ color: 'var(--danger)' }}>{erro}</div> : null}
 
           <div className="row-flex">
-            <button className="btn btn-primary" type="submit">Salvar</button>
+            <button className="btn btn-primary" type="submit" disabled={salvando}>{salvando ? 'Salvando…' : 'Salvar'}</button>
             <button className="btn btn-secondary" type="button" onClick={fechar}>Cancelar</button>
           </div>
         </form>
