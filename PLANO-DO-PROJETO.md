@@ -228,6 +228,18 @@ Perguntas que o sistema precisa responder daqui a um ano, e como os dados acima 
 - Avaliar cortes de prazo curto/médio/longo (hoje 15/45 dias) com uso real
 - Avaliar integração com Sienge/Prevision se fizer sentido depois
 
+## Módulo — Pedidos de Material (v2, em construção)
+
+**Problema:** hoje o atraso de material só é percebido quando a obra já parou esperando. Não há registro do que já foi pedido, pra quem, e quando deveria chegar.
+
+**Fluxo do dia a dia:** ao ver um pedido atrasado, a ação é dupla — ligar pro fornecedor cobrando entrega, e avisar sobre qual frente vai travar. As duas ficam na mesma tela, sem perfil novo (Engenheira e Engenheiro de Campo compartilham a visão, como no resto do sistema).
+
+### Pedidos de Material
+- Mostra: material, fornecedor, telefone do fornecedor, frente afetada, data do pedido, prazo de entrega, status (Pedido / Em trânsito / Entregue / **Atrasado** — calculado a partir do prazo de entrega, nunca digitado, igual ao padrão de `contratacoes_pendentes.status`)
+- Ordem: atrasados primeiro, depois mais urgente (prazo mais próximo) · Filtro: por status
+- Ações: registrar pedido, marcar como entregue, "Ligar pro fornecedor" (mostra telefone), frente afetada visível pra avisar quem precisa
+- Vazio: "Nenhum pedido em aberto."
+
 ---
 
 # A conta que vai chegar depois
