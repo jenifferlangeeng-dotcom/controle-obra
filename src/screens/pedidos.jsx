@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { PageHeader, EmptyState, Icon } from '../components/index.jsx'
 import { formatarDataBR } from '../lib/datas.js'
 import { statusExibido, ordenarPedidos } from '../lib/pedidos.js'
+import { linkWhatsApp, mensagemCobrancaPedido } from '../lib/whatsapp.js'
 import { listarPedidosMaterial, criarPedidoMaterial, marcarEntregue } from '../lib/dados.js'
 
 const STATUS = {
@@ -86,10 +87,20 @@ export default function PedidosMaterial() {
                     {item.fornecedor} · pedido em {formatarDataBR(item.data_pedido)} · prazo {formatarDataBR(item.prazo_entrega)}
                   </div>
                   {item.status !== 'entregue' ? (
-                    <div className="row-flex">
+                    <div className="row-flex" style={{ flexWrap: 'wrap' }}>
                       {item.telefone_fornecedor ? (
                         <a className="btn btn-secondary btn-sm" href={`tel:${item.telefone_fornecedor}`}>
-                          Ligar pro fornecedor ({item.telefone_fornecedor})
+                          Ligar ({item.telefone_fornecedor})
+                        </a>
+                      ) : null}
+                      {item.telefone_fornecedor ? (
+                        <a
+                          className="btn btn-secondary btn-sm"
+                          href={linkWhatsApp(item.telefone_fornecedor, mensagemCobrancaPedido(item))}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Mandar WhatsApp
                         </a>
                       ) : null}
                       <button className="btn btn-primary btn-sm" onClick={() => confirmarEntregue(item.id)}>
