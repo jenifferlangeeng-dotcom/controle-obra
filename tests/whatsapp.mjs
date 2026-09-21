@@ -27,6 +27,10 @@ conferir('sem telefone não gera link', linkWhatsApp('', 'oi'), null)
 const pedido = { fornecedor: 'Alumifort Ltda', material: 'Esquadrias de alumínio', prazo_entrega: '2026-09-15' }
 conferir('mensagem de cobrança usa a data no formato BR, sem escorregar um dia', mensagemCobrancaPedido(pedido).includes('15/09/2026'), true)
 conferir('mensagem de cobrança cita o fornecedor e o material', mensagemCobrancaPedido(pedido).includes('Alumifort Ltda') && mensagemCobrancaPedido(pedido).includes('Esquadrias de alumínio'), true)
+conferir('sem número do pedido, mensagem não cita "nº"', mensagemCobrancaPedido(pedido).includes('nº'), false)
+
+const pedidoComNumero = { ...pedido, numero_pedido: '4521' }
+conferir('com número do pedido, mensagem cita ele', mensagemCobrancaPedido(pedidoComNumero).includes('pedido nº 4521'), true)
 
 console.log(`${ok}/${tot} — whatsapp`)
 process.exit(ok === tot ? 0 : 1)

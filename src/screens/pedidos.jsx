@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PageHeader, EmptyState, Icon } from '../components/index.jsx'
 import { formatarDataBR } from '../lib/datas.js'
-import { statusExibido, ordenarPedidos } from '../lib/pedidos.js'
+import { statusExibido, ordenarPedidos, filtrarPedidos } from '../lib/pedidos.js'
 import { linkWhatsApp, mensagemCobrancaPedido } from '../lib/whatsapp.js'
 import { listarPedidosMaterial, criarPedidoMaterial, marcarEntregue } from '../lib/dados.js'
 
@@ -12,7 +12,7 @@ const STATUS = {
   atrasado: { rotulo: 'Atrasado', chip: 'danger' },
 }
 
-const FORM_VAZIO = { material: '', fornecedor: '', telefone_fornecedor: '', frente_afetada: '', data_pedido: '', prazo_entrega: '' }
+const FORM_VAZIO = { numero_pedido: '', material: '', fornecedor: '', telefone_fornecedor: '', frente_afetada: '', data_pedido: '', prazo_entrega: '' }
 
 export default function PedidosMaterial() {
   const [pedidos, setPedidos] = useState([])
@@ -21,6 +21,7 @@ export default function PedidosMaterial() {
   const [mostrarForm, setMostrarForm] = useState(false)
   const [form, setForm] = useState(FORM_VAZIO)
   const [salvando, setSalvando] = useState(false)
+  const [busca, setBusca] = useState('')
 
   async function carregar() {
     setCarregando(true)
@@ -68,18 +69,32 @@ export default function PedidosMaterial() {
       <div className="page-content stack-3">
         {erro ? <div className="t-caption" style={{ color: 'var(--danger)' }}>{erro}</div> : null}
 
+        {pedidos.length > 0 ? (
+          <input
+            className="ipt"
+            placeholder="Buscar por número, material ou fornecedor"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        ) : null}
+
         {carregando ? (
           <div className="t-caption">Carregando…</div>
         ) : pedidos.length === 0 ? (
           <EmptyState icon="pedidos" texto="Nenhum pedido em aberto." />
+        ) : filtrarPedidos(pedidos, busca).length === 0 ? (
+          <EmptyState icon="pedidos" texto="Nenhum pedido encontrado para essa busca." />
         ) : (
           <div className="stack-2">
-            {pedidos.map((item) => {
+            {filtrarPedidos(pedidos, busca).map((item) => {
               const st = STATUS[statusExibido(item)]
               return (
                 <div key={item.id} className="card-flat stack-1">
                   <div className="row-between">
-                    <div className="t-strong">{item.material}</div>
+                    <div className="t-strong">
+                      {item.material}
+                      {item.numero_pedido ? <span className="t-caption"> · nº {item.numero_pedido}</span> : null}
+                    </div>
                     <span className={`chip ${st.chip}`}>{st.rotulo}</span>
                   </div>
                   <div className="t-caption">Afeta: {item.frente_afetada}</div>
@@ -116,6 +131,10 @@ export default function PedidosMaterial() {
 
         {mostrarForm ? (
           <form className="card stack-2" onSubmit={salvar}>
+            <div>
+              <label className="field-label" htmlFor="numero-pd">Número do pedido (opcional)</label>
+              <input id="numero-pd" className="ipt" value={form.numero_pedido} onChange={(e) => setForm({ ...form, numero_pedido: e.target.value })} />
+            </div>
             <div>
               <label className="field-label" htmlFor="material-pd">Material</label>
               <input id="material-pd" className="ipt" value={form.material} onChange={(e) => setForm({ ...form, material: e.target.value })} required />

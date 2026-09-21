@@ -1,4 +1,4 @@
-import { estaAtrasado, statusExibido, ordenarPedidos } from '../src/lib/pedidos.js'
+import { estaAtrasado, statusExibido, ordenarPedidos, filtrarPedidos } from '../src/lib/pedidos.js'
 
 let ok = 0
 let tot = 0
@@ -31,6 +31,18 @@ const pedidos = [
   { id: 4, status: 'em_transito', prazo_entrega: '2026-09-25' },
 ]
 conferir('atrasados vêm primeiro, entregues não contam como atrasados', ordenarPedidos(pedidos, hoje).map((p) => p.id), [2, 3, 4, 1])
+
+const acervo = [
+  { id: 1, numero_pedido: '4521', material: 'Concreto usinado', fornecedor: 'Empreiteira Silva & Cia' },
+  { id: 2, numero_pedido: '4522', material: 'Esquadrias de alumínio', fornecedor: 'Alumifort Ltda' },
+  { id: 3, numero_pedido: null, material: 'Mudas e terra vegetal', fornecedor: 'Verde Obra Paisagismo' },
+]
+conferir('busca vazia devolve tudo', filtrarPedidos(acervo, ''), acervo)
+conferir('busca por número do pedido acha só aquele', filtrarPedidos(acervo, '4521').map((p) => p.id), [1])
+conferir('busca por material funciona', filtrarPedidos(acervo, 'esquadria').map((p) => p.id), [2])
+conferir('busca por fornecedor não diferencia maiúscula/minúscula', filtrarPedidos(acervo, 'ALUMIFORT').map((p) => p.id), [2])
+conferir('pedido sem número não quebra a busca', filtrarPedidos(acervo, 'verde').map((p) => p.id), [3])
+conferir('busca sem resultado devolve lista vazia', filtrarPedidos(acervo, 'nada disso existe'), [])
 
 console.log(`${ok}/${tot} — pedidos`)
 process.exit(ok === tot ? 0 : 1)

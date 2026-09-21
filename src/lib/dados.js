@@ -85,6 +85,7 @@ export async function criarPedidoMaterial(dados) {
   const { data, error } = await supabase
     .from('pedidos_material')
     .insert({
+      numero_pedido: dados.numero_pedido || null,
       material: dados.material,
       fornecedor: dados.fornecedor,
       telefone_fornecedor: dados.telefone_fornecedor || null,

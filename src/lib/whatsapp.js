@@ -15,5 +15,6 @@ export function linkWhatsApp(telefone, mensagem) {
 }
 
 export function mensagemCobrancaPedido(pedido) {
-  return `Olá, ${pedido.fornecedor}! Sobre o pedido de "${pedido.material}" para a obra: o prazo de entrega era ${formatarDataBR(pedido.prazo_entrega)} e ainda não recebemos. Pode confirmar a previsão de chegada?`
+  const referencia = pedido.numero_pedido ? ` (pedido nº ${pedido.numero_pedido})` : ''
+  return `Olá, ${pedido.fornecedor}! Sobre o pedido de "${pedido.material}"${referencia} para a obra: o prazo de entrega era ${formatarDataBR(pedido.prazo_entrega)} e ainda não recebemos. Pode confirmar a previsão de chegada?`
 }

@@ -14,6 +14,16 @@ export function statusExibido(pedido, hoje = new Date()) {
   return estaAtrasado(pedido, hoje) ? 'atrasado' : pedido.status
 }
 
+// Busca interna (ver PLANO-DO-PROJETO.md): por número do pedido, material
+// ou fornecedor, sem diferenciar maiúscula/minúscula.
+export function filtrarPedidos(pedidos, busca) {
+  const termo = (busca || '').trim().toLowerCase()
+  if (!termo) return pedidos
+  return pedidos.filter((p) =>
+    [p.numero_pedido, p.material, p.fornecedor].some((campo) => (campo || '').toLowerCase().includes(termo))
+  )
+}
+
 export function ordenarPedidos(pedidos, hoje = new Date()) {
   return [...pedidos].sort((a, b) => {
     const aAtrasado = estaAtrasado(a, hoje)
