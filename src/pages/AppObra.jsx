@@ -5,6 +5,7 @@ import LancamentoAvanco from '../screens/avanco.jsx'
 import MetaFinanceira from '../screens/meta.jsx'
 import Materiais from '../screens/materiais.jsx'
 import Planejamento from '../screens/planejamento/index.jsx'
+import Medicoes from '../screens/medicoes/index.jsx'
 import MeuPerfil from '../screens/perfil.jsx'
 
 // Shell única para os dois perfis (Engenheira e Engenheiro de Campo): o menu
@@ -22,6 +23,7 @@ const ITENS_PRINCIPAIS = [
 
 const ITENS_MAIS = [
   { screen: 'planejamento', label: 'Planejamento', icon: 'planejamento' },
+  { screen: 'medicoes', label: 'Medições', icon: 'medicoes' },
   { screen: 'perfil', label: 'Perfil', icon: 'perfil' },
 ]
 
@@ -50,6 +52,7 @@ export default function AppObra({ perfil, onSair }) {
     case 'materiais': body = <Materiais goto={goto} perfil={perfil} />; break
     case 'meta': body = <MetaFinanceira goto={goto} perfil={perfil} />; break
     case 'planejamento': body = <Planejamento goto={goto} perfil={perfil} />; break
+    case 'medicoes': body = <Medicoes goto={goto} perfil={perfil} />; break
     case 'perfil': body = <MeuPerfil perfil={perfil} onSair={onSair} />; break
     default: body = <ContratacoesPendentes goto={goto} perfil={perfil} />
   }
