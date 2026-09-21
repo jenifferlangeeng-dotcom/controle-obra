@@ -25,6 +25,13 @@ conferir('16 dias à frente já é médio prazo', calcularPrazo(new Date(2026, 9
 conferir('45 dias à frente ainda é médio prazo', calcularPrazo(new Date(2026, 10, 5), hoje), 'medio')
 conferir('46 dias à frente já é longo prazo', calcularPrazo(new Date(2026, 10, 6), hoje), 'longo')
 conferir('conta os dias corretamente', diasAteLimite(new Date(2026, 8, 26), hoje), 5)
+
+// Regressão: em produção a data vem como texto 'AAAA-MM-DD' (formato do
+// banco), nunca como Date pronto. new Date('AAAA-MM-DD') é UTC e no fuso do
+// Brasil "voltava" um dia — ver tests/datas.mjs para o conserto na raiz.
+conferir('funciona com data em texto, sem escorregar um dia', calcularPrazo('2026-09-21', hoje), 'curto')
+conferir('data em texto no primeiro dia do mês não escorrega de mês', diasAteLimite('2026-10-01', hoje), 10)
+
 conferir('rótulo do bloco curto', rotuloPrazo('curto'), 'Curto prazo')
 conferir('rótulo do bloco médio', rotuloPrazo('medio'), 'Médio prazo')
 conferir('rótulo do bloco longo', rotuloPrazo('longo'), 'Longo prazo')

@@ -1,11 +1,13 @@
 // Regra de negócio de contratacoes_pendentes (ver PRD-BACKEND.md):
 // o bloco de prazo é calculado a partir da data limite, nunca digitado.
+import { paraDataLocal } from './datas.js'
+
 const DIA_MS = 24 * 60 * 60 * 1000
 const LIMITE_CURTO_DIAS = 15
 const LIMITE_MEDIO_DIAS = 45
 
 export function diasAteLimite(dataLimite, hoje = new Date()) {
-  const alvo = dataLimite instanceof Date ? dataLimite : new Date(dataLimite)
+  const alvo = paraDataLocal(dataLimite)
   const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
   const inicioAlvo = new Date(alvo.getFullYear(), alvo.getMonth(), alvo.getDate())
   return Math.round((inicioAlvo - inicioHoje) / DIA_MS)
