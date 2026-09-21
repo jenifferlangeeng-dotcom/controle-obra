@@ -24,7 +24,7 @@ export default function Login({ onEntrar }) {
           </button>
           <button
             className="btn btn-secondary"
-            onClick={() => onEntrar({ nome: 'Engenheiro de Campo', role: 'engenheiro_campo' })}
+            onClick={() => onEntrar({ nome: 'Marcos Andrade', role: 'engenheiro_campo' })}
           >
             Entrar como Engenheiro de Campo
           </button>
