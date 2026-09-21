@@ -1,7 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeader, EmptyState } from '../../components/index.jsx'
-import { contratos as contratosIniciais, itensContrato as itensIniciais, medicoes as medicoesIniciais } from '../../lib/mockData.js'
 import { percentualMedido, podeConcluir, valorTotalEscopo } from '../../lib/medicoes.js'
+import {
+  listarContratos,
+  listarItensContrato,
+  listarMedicoes,
+  criarContrato,
+  moverContrato,
+  ativarContratoGlobal,
+  ativarContratoEscopo,
+} from '../../lib/dados.js'
 
 const formatarReal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format
 
@@ -59,9 +67,11 @@ function Card({ contrato, itens, medicoes, onVoltar, onAvancar, onErro }) {
 }
 
 export default function Medicoes() {
-  const [contratos, setContratos] = useState(contratosIniciais)
-  const [itensContrato, setItensContrato] = useState(itensIniciais)
-  const [medicoes] = useState(medicoesIniciais)
+  const [contratos, setContratos] = useState([])
+  const [itensContrato, setItensContrato] = useState([])
+  const [medicoes, setMedicoes] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erroCarga, setErroCarga] = useState('')
   const [erro, setErro] = useState('')
 
   const [mostrarNovo, setMostrarNovo] = useState(false)
@@ -72,18 +82,41 @@ export default function Medicoes() {
   const [valorGlobal, setValorGlobal] = useState('')
   const [linhasEscopo, setLinhasEscopo] = useState([{ ...LINHA_VAZIA }])
   const [erroValor, setErroValor] = useState('')
+  const [salvando, setSalvando] = useState(false)
 
-  function voltar(contrato) {
-    const indice = COLUNAS.indexOf(contrato.status)
-    const novoStatus = COLUNAS[Math.max(0, indice - 1)]
-    setContratos((atual) => atual.map((c) => (c.id === contrato.id ? { ...c, status: novoStatus } : c)))
+  async function carregar() {
+    setCarregando(true)
+    setErroCarga('')
+    try {
+      const [c, i, m] = await Promise.all([listarContratos(), listarItensContrato(), listarMedicoes()])
+      setContratos(c)
+      setItensContrato(i)
+      setMedicoes(m)
+    } catch (e) {
+      setErroCarga('Não foi possível carregar os contratos. ' + e.message)
+    } finally {
+      setCarregando(false)
+    }
   }
 
-  function avancar(contrato) {
+  useEffect(() => { carregar() }, [])
+
+  async function voltar(contrato) {
+    const indice = COLUNAS.indexOf(contrato.status)
+    const novoStatus = COLUNAS[Math.max(0, indice - 1)]
+    setContratos((atual) => atual.map((c) => (c.id === contrato.id ? { ...c, status: novoStatus } : c))) // otimista
+    try {
+      await moverContrato(contrato.id, novoStatus)
+    } catch (e) {
+      setErro('Não foi possível mover o contrato. ' + e.message)
+      await carregar()
+    }
+  }
+
+  async function avancar(contrato) {
     const indice = COLUNAS.indexOf(contrato.status)
     const proximo = COLUNAS[indice + 1]
     if (proximo === 'ativo') {
-      // Não avança direto: abre o cadastro do valor primeiro.
       setContratoParaAtivar(contrato)
       setTipoEscolhido(null)
       setValorGlobal('')
@@ -91,16 +124,29 @@ export default function Medicoes() {
       setErroValor('')
       return
     }
-    setContratos((atual) => atual.map((c) => (c.id === contrato.id ? { ...c, status: proximo } : c)))
+    setContratos((atual) => atual.map((c) => (c.id === contrato.id ? { ...c, status: proximo } : c))) // otimista
+    try {
+      await moverContrato(contrato.id, proximo)
+    } catch (e) {
+      setErro('Não foi possível mover o contrato. ' + e.message)
+      await carregar()
+    }
   }
 
-  function salvarNovoContrato(e) {
+  async function salvarNovoContrato(e) {
     e.preventDefault()
     if (!formNovo.empreiteiro || !formNovo.descricaoServico) return
-    const novoId = Math.max(0, ...contratos.map((c) => c.id)) + 1
-    setContratos((atual) => [...atual, { id: novoId, ...formNovo, status: 'elaboracao', tipoValor: null, valorTotal: null }])
-    setFormNovo(FORM_CONTRATO_VAZIO)
-    setMostrarNovo(false)
+    setSalvando(true)
+    try {
+      const novo = await criarContrato(formNovo)
+      setContratos((atual) => [...atual, novo])
+      setFormNovo(FORM_CONTRATO_VAZIO)
+      setMostrarNovo(false)
+    } catch (e) {
+      setErro('Não foi possível salvar. ' + e.message)
+    } finally {
+      setSalvando(false)
+    }
   }
 
   function adicionarLinha() {
@@ -115,33 +161,47 @@ export default function Medicoes() {
     setLinhasEscopo((atual) => atual.map((linha, i) => (i === indice ? { ...linha, [campo]: valor } : linha)))
   }
 
-  function confirmarAtivacao() {
+  async function confirmarAtivacao() {
     setErroValor('')
-    if (tipoEscolhido === 'global') {
-      const valor = Number(valorGlobal)
-      if (!valor || valor <= 0) { setErroValor('Informe um valor total maior que zero.'); return }
-      setContratos((atual) => atual.map((c) => (c.id === contratoParaAtivar.id ? { ...c, status: 'ativo', tipoValor: 'global', valorTotal: valor } : c)))
-    } else if (tipoEscolhido === 'escopo') {
-      const linhasValidas = linhasEscopo.filter((l) => l.descricao && Number(l.quantidade) > 0 && Number(l.precoUnitario) > 0)
-      if (linhasValidas.length === 0) { setErroValor('Adicione pelo menos um item válido (descrição, quantidade e preço).'); return }
-      const novoIdBase = Math.max(0, ...itensContrato.map((i) => i.id)) + 1
-      const novosItens = linhasValidas.map((l, i) => ({
-        id: novoIdBase + i,
-        contratoId: contratoParaAtivar.id,
-        descricao: l.descricao,
-        unidade: l.unidade,
-        quantidade: Number(l.quantidade),
-        precoUnitario: Number(l.precoUnitario),
-      }))
-      setItensContrato((atual) => [...atual, ...novosItens])
-      setContratos((atual) => atual.map((c) => (c.id === contratoParaAtivar.id ? { ...c, status: 'ativo', tipoValor: 'escopo', valorTotal: null } : c)))
-    } else {
-      return
+    setSalvando(true)
+    try {
+      if (tipoEscolhido === 'global') {
+        const valor = Number(valorGlobal)
+        if (!valor || valor <= 0) { setErroValor('Informe um valor total maior que zero.'); setSalvando(false); return }
+        const atualizado = await ativarContratoGlobal(contratoParaAtivar.id, valor)
+        setContratos((atual) => atual.map((c) => (c.id === atualizado.id ? atualizado : c)))
+      } else if (tipoEscolhido === 'escopo') {
+        const linhasValidas = linhasEscopo.filter((l) => l.descricao && Number(l.quantidade) > 0 && Number(l.precoUnitario) > 0)
+        if (linhasValidas.length === 0) { setErroValor('Adicione pelo menos um item válido (descrição, quantidade e preço).'); setSalvando(false); return }
+        const { contrato, itens } = await ativarContratoEscopo(contratoParaAtivar.id, linhasValidas)
+        setContratos((atual) => atual.map((c) => (c.id === contrato.id ? contrato : c)))
+        setItensContrato((atual) => [...atual, ...itens])
+      } else {
+        setSalvando(false)
+        return
+      }
+      setContratoParaAtivar(null)
+    } catch (e) {
+      setErroValor('Não foi possível ativar o contrato. ' + e.message)
+    } finally {
+      setSalvando(false)
     }
-    setContratoParaAtivar(null)
   }
 
   const totalEscopoDigitado = linhasEscopo.reduce((soma, l) => soma + (Number(l.quantidade) || 0) * (Number(l.precoUnitario) || 0), 0)
+
+  if (carregando) return <div className="page-content t-caption">Carregando…</div>
+
+  if (erroCarga) {
+    return (
+      <div className="page-content">
+        <div className="card-flat stack-2">
+          <div className="t-caption" style={{ color: 'var(--danger)' }}>{erroCarga}</div>
+          <button className="btn btn-secondary" onClick={carregar}>Tentar de novo</button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -197,7 +257,7 @@ export default function Medicoes() {
               <input id="descricao-novo" className="ipt" value={formNovo.descricaoServico} onChange={(e) => setFormNovo({ ...formNovo, descricaoServico: e.target.value })} required />
             </div>
             <div className="row-flex">
-              <button className="btn btn-primary" type="submit">Salvar</button>
+              <button className="btn btn-primary" type="submit" disabled={salvando}>{salvando ? 'Salvando…' : 'Salvar'}</button>
               <button className="btn btn-secondary" type="button" onClick={() => { setMostrarNovo(false); setFormNovo(FORM_CONTRATO_VAZIO) }}>Cancelar</button>
             </div>
           </form>
@@ -220,7 +280,7 @@ export default function Medicoes() {
                 </div>
                 {erroValor ? <div className="t-caption" style={{ color: 'var(--danger)' }}>{erroValor}</div> : null}
                 <div className="row-flex">
-                  <button className="btn btn-primary" onClick={confirmarAtivacao}>Confirmar e ativar</button>
+                  <button className="btn btn-primary" onClick={confirmarAtivacao} disabled={salvando}>{salvando ? 'Salvando…' : 'Confirmar e ativar'}</button>
                   <button className="btn btn-secondary" onClick={() => setTipoEscolhido(null)}>Voltar</button>
                 </div>
               </div>
@@ -251,7 +311,7 @@ export default function Medicoes() {
                 </div>
                 {erroValor ? <div className="t-caption" style={{ color: 'var(--danger)' }}>{erroValor}</div> : null}
                 <div className="row-flex">
-                  <button className="btn btn-primary" onClick={confirmarAtivacao}>Confirmar e ativar</button>
+                  <button className="btn btn-primary" onClick={confirmarAtivacao} disabled={salvando}>{salvando ? 'Salvando…' : 'Confirmar e ativar'}</button>
                   <button className="btn btn-secondary" onClick={() => setTipoEscolhido(null)}>Voltar</button>
                 </div>
               </div>

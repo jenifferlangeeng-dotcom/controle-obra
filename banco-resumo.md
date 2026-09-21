@@ -25,6 +25,20 @@ A EAP (Estrutura Analítica do Projeto) do módulo Planejamento — a árvore de
 
 **Módulos que ainda faltam neste sistema, dentro do Planejamento:** Longo Prazo, Médio Prazo (Lookahead/restrições) e Curto Prazo (Kanban semanal + PPC) — a tela ainda mostra "em construção" pra essas três abas, e não existe tabela pra elas ainda.
 
+## `contratos_empreiteiros`
+O Kanban de Medições: cada linha é um contrato com um empreiteiro, percorrendo 4 status (elaboração, enviado, ativo, concluído). `tipo_valor` diz se o contrato é "global" (um valor único, em `valor_total`) ou "escopo" (o valor vem da soma dos itens em `itens_contrato`, e `valor_total` fica vazio aqui). Só pode virar "concluído" com 100% medido — regra calculada na hora, não guardada.
+
+## `itens_contrato`
+As linhas de um contrato por escopo (descrição, unidade, quantidade, preço unitário). Só existe pra contratos com `tipo_valor = 'escopo'`.
+
+## `medicoes`
+Os boletins de medição de um contrato — um por vez que o empreiteiro é medido, numerado (1, 2, 3...), com data e o valor daquele boletim (não o acumulado). O acumulado e o saldo a medir são somados a partir daqui na hora de mostrar a tela, nunca guardados prontos.
+
+## `medicao_itens`
+Só existe pra boletins de contrato por escopo: uma linha por item medido naquele boletim, com a quantidade executada. É o dado de verdade — o % e o R$ que aparecem na tela são sempre recalculados a partir da quantidade, nunca guardados em paralelo (evita erro de arredondamento acumulado boletim após boletim).
+
+**Ainda falta:** a Ficha de Medição (Etapa 2 do módulo) — a tela de lançar um boletim novo. O Kanban e o cadastro do valor do contrato já estão prontos e ligados ao banco.
+
 ## Storage (arquivos)
 
 - **`notas-fiscais`** (privado): fotos da nota fiscal do checklist de recebimento em `pedidos_material`. O banco guarda só o caminho do arquivo; a tela pede um link temporário (assinado) quando precisa mostrar a foto.

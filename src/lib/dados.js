@@ -233,6 +233,116 @@ export async function arquivarAtividade(id, arquivada) {
   return mapAtividade(data)
 }
 
+// Medições de Empreiteiros. Mesma ideia de tradução snake_case <-> app já
+// usada na EAP: o banco fala uma língua, a tela fala outra.
+function mapContrato(linha) {
+  return {
+    id: linha.id,
+    empreiteiro: linha.empreiteiro,
+    descricaoServico: linha.descricao_servico,
+    status: linha.status,
+    tipoValor: linha.tipo_valor,
+    valorTotal: linha.valor_total === null ? null : Number(linha.valor_total),
+  }
+}
+
+function mapItemContrato(linha) {
+  return {
+    id: linha.id,
+    contratoId: linha.contrato_id,
+    descricao: linha.descricao,
+    unidade: linha.unidade,
+    quantidade: Number(linha.quantidade),
+    precoUnitario: Number(linha.preco_unitario),
+  }
+}
+
+function mapMedicao(linha) {
+  return {
+    id: linha.id,
+    contratoId: linha.contrato_id,
+    numero: linha.numero,
+    data: linha.data,
+    valorTotal: Number(linha.valor_total),
+  }
+}
+
+function mapMedicaoItem(linha) {
+  return {
+    id: linha.id,
+    medicaoId: linha.medicao_id,
+    itemContratoId: linha.item_contrato_id,
+    quantidadeExecutada: Number(linha.quantidade_executada),
+  }
+}
+
+export async function listarContratos() {
+  const { data, error } = await supabase.from('contratos_empreiteiros').select('*').order('id')
+  if (error) throw error
+  return data.map(mapContrato)
+}
+
+export async function listarItensContrato() {
+  const { data, error } = await supabase.from('itens_contrato').select('*').order('id')
+  if (error) throw error
+  return data.map(mapItemContrato)
+}
+
+export async function listarMedicoes() {
+  const { data, error } = await supabase.from('medicoes').select('*').order('numero')
+  if (error) throw error
+  return data.map(mapMedicao)
+}
+
+export async function listarMedicaoItens() {
+  const { data, error } = await supabase.from('medicao_itens').select('*')
+  if (error) throw error
+  return data.map(mapMedicaoItem)
+}
+
+export async function criarContrato({ empreiteiro, descricaoServico }) {
+  const { data, error } = await supabase
+    .from('contratos_empreiteiros')
+    .insert({ empreiteiro, descricao_servico: descricaoServico })
+    .select()
+    .single()
+  if (error) throw error
+  return mapContrato(data)
+}
+
+export async function moverContrato(id, novoStatus) {
+  const { data, error } = await supabase.from('contratos_empreiteiros').update({ status: novoStatus }).eq('id', id).select().single()
+  if (error) throw error
+  return mapContrato(data)
+}
+
+export async function ativarContratoGlobal(id, valorTotal) {
+  const { data, error } = await supabase
+    .from('contratos_empreiteiros')
+    .update({ status: 'ativo', tipo_valor: 'global', valor_total: valorTotal })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return mapContrato(data)
+}
+
+export async function ativarContratoEscopo(id, itens) {
+  const { data: itensInseridos, error: e1 } = await supabase
+    .from('itens_contrato')
+    .insert(itens.map((i) => ({ contrato_id: id, descricao: i.descricao, unidade: i.unidade, quantidade: i.quantidade, preco_unitario: i.precoUnitario })))
+    .select()
+  if (e1) throw e1
+  const { data: contrato, error: e2 } = await supabase
+    .from('contratos_empreiteiros')
+    .update({ status: 'ativo', tipo_valor: 'escopo' })
+    .eq('id', id)
+    .select()
+    .single()
+  if (e2) throw e2
+  return { contrato: mapContrato(contrato), itens: itensInseridos.map(mapItemContrato) }
+}
+
 export async function salvarMeta(dados) {
   const { data, error } = await supabase
     .from('metas_financeiras')

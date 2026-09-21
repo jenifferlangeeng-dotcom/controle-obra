@@ -5,5 +5,9 @@
   "metas_financeiras": ["id", "mes_referencia", "meta_percentual", "meta_valor", "created_at"],
   "pedidos_material": ["id", "numero_pedido", "material", "fornecedor", "telefone_fornecedor", "frente_afetada", "data_pedido", "prazo_entrega", "status", "created_at", "material_id", "quantidade", "prioridade", "historico", "qtd_bate_nf", "estado_ok", "avarias", "foto_nf_url"],
   "materiais_catalogo": ["id", "nome", "unidade", "categoria", "created_at"],
-  "atividades": ["id", "pai_id", "ordem", "titulo", "data_inicio", "data_fim", "progresso", "arquivada", "created_at", "updated_at"]
+  "atividades": ["id", "pai_id", "ordem", "titulo", "data_inicio", "data_fim", "progresso", "arquivada", "created_at", "updated_at"],
+  "contratos_empreiteiros": ["id", "empreiteiro", "descricao_servico", "status", "tipo_valor", "valor_total", "created_at", "updated_at"],
+  "itens_contrato": ["id", "contrato_id", "descricao", "unidade", "quantidade", "preco_unitario", "created_at"],
+  "medicoes": ["id", "contrato_id", "numero", "data", "valor_total", "created_at"],
+  "medicao_itens": ["id", "medicao_id", "item_contrato_id", "quantidade_executada", "created_at"]
 }
