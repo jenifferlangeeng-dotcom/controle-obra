@@ -343,6 +343,29 @@ export async function ativarContratoEscopo(id, itens) {
   return { contrato: mapContrato(contrato), itens: itensInseridos.map(mapItemContrato) }
 }
 
+// Salva um boletim de medição. `itens` vem vazio pra contrato Global; pra
+// contrato por Escopo, uma linha por item com quantidade > 0 nesse boletim.
+export async function criarMedicao(contratoId, { numero, data, valorTotal, itens = [] }) {
+  const { data: medicao, error: e1 } = await supabase
+    .from('medicoes')
+    .insert({ contrato_id: contratoId, numero, data, valor_total: valorTotal })
+    .select()
+    .single()
+  if (e1) throw e1
+
+  let itensInseridos = []
+  if (itens.length > 0) {
+    const { data: linhas, error: e2 } = await supabase
+      .from('medicao_itens')
+      .insert(itens.map((i) => ({ medicao_id: medicao.id, item_contrato_id: i.itemContratoId, quantidade_executada: i.quantidadeExecutada })))
+      .select()
+    if (e2) throw e2
+    itensInseridos = linhas.map(mapMedicaoItem)
+  }
+
+  return { medicao: mapMedicao(medicao), itens: itensInseridos }
+}
+
 export async function salvarMeta(dados) {
   const { data, error } = await supabase
     .from('metas_financeiras')

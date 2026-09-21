@@ -8,6 +8,8 @@ import {
   podeConcluir,
   margemRestanteItem,
   margemRestanteGlobal,
+  derivarGlobal,
+  proximoNumeroMedicao,
 } from '../src/lib/medicoes.js'
 
 let ok = 0
@@ -73,6 +75,20 @@ conferir('margem restante do item é o que falta pra bater a quantidade total', 
 conferir('margem restante ignora o próprio boletim quando está editando', margemRestanteItem(placas, medicaoItens, 2), 100)
 conferir('margem restante do contrato global', margemRestanteGlobal(contratoGlobal, medicoesGlobal), 12000)
 conferir('margem restante nunca fica negativa mesmo se já mediu além (não deveria acontecer)', margemRestanteGlobal(contratoGlobal, medicoes100), 0)
+
+// ── boletim do contrato global: só % ou R$, sem quantidade ──
+conferir('digitando % no boletim global, deriva o R$', derivarGlobal(30000, 'percentual', 20), { percentual: 20, valor: 6000 })
+conferir('digitando R$ no boletim global, deriva o %', derivarGlobal(30000, 'valor', 6000), { percentual: 20, valor: 6000 })
+conferir('contrato global sem valor total não quebra o cálculo de %', derivarGlobal(0, 'valor', 100), { percentual: 0, valor: 100 })
+
+// ── número do próximo boletim ──
+const medicoesExistentes = [
+  { contratoId: 4, numero: 1 },
+  { contratoId: 4, numero: 2 },
+  { contratoId: 5, numero: 1 },
+]
+conferir('próximo boletim continua a numeração do contrato', proximoNumeroMedicao(4, medicoesExistentes), 3)
+conferir('contrato sem boletim nenhum começa no nº 1', proximoNumeroMedicao(99, medicoesExistentes), 1)
 
 console.log(`${ok}/${tot} — medicoes`)
 process.exit(ok === tot ? 0 : 1)

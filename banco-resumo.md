@@ -37,7 +37,7 @@ Os boletins de medição de um contrato — um por vez que o empreiteiro é medi
 ## `medicao_itens`
 Só existe pra boletins de contrato por escopo: uma linha por item medido naquele boletim, com a quantidade executada. É o dado de verdade — o % e o R$ que aparecem na tela são sempre recalculados a partir da quantidade, nunca guardados em paralelo (evita erro de arredondamento acumulado boletim após boletim).
 
-**Ainda falta:** a Ficha de Medição (Etapa 2 do módulo) — a tela de lançar um boletim novo. O Kanban e o cadastro do valor do contrato já estão prontos e ligados ao banco.
+A Ficha de Medição (Etapa 2 do módulo) já está pronta: lança boletins numerados, com bloqueio contra passar de 100% (por item, no contrato por escopo; do contrato inteiro, no global).
 
 ## Storage (arquivos)
 

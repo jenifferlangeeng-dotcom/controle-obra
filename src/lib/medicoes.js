@@ -30,6 +30,23 @@ export function derivarLinhaItem(item, campo, valorDigitado) {
   return { quantidade, percentual, valor }
 }
 
+// Mesma ideia do contrato por escopo, mas pro contrato Global: só há % ou
+// R$ (não existe "quantidade" num contrato fechado por valor único).
+export function derivarGlobal(valorTotal, campo, valorDigitado) {
+  const numero = Number(valorDigitado) || 0
+  if (campo === 'percentual') {
+    const valor = (numero / 100) * valorTotal
+    return { percentual: numero, valor }
+  }
+  const percentual = valorTotal > 0 ? (numero / valorTotal) * 100 : 0
+  return { percentual, valor: numero }
+}
+
+export function proximoNumeroMedicao(contratoId, medicoes) {
+  const doContrato = medicoes.filter((m) => m.contratoId === contratoId)
+  return doContrato.length ? Math.max(...doContrato.map((m) => m.numero)) + 1 : 1
+}
+
 export function quantidadeAcumuladaItem(itemId, medicaoItens) {
   return medicaoItens.filter((m) => m.itemContratoId === itemId).reduce((soma, m) => soma + m.quantidadeExecutada, 0)
 }

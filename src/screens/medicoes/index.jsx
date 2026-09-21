@@ -5,11 +5,13 @@ import {
   listarContratos,
   listarItensContrato,
   listarMedicoes,
+  listarMedicaoItens,
   criarContrato,
   moverContrato,
   ativarContratoGlobal,
   ativarContratoEscopo,
 } from '../../lib/dados.js'
+import FichaMedicao from './FichaMedicao.jsx'
 
 const formatarReal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format
 
@@ -24,7 +26,7 @@ const ROTULO_COLUNA = {
 const FORM_CONTRATO_VAZIO = { empreiteiro: '', descricaoServico: '' }
 const LINHA_VAZIA = { descricao: '', unidade: 'm2', quantidade: '', precoUnitario: '' }
 
-function Card({ contrato, itens, medicoes, onVoltar, onAvancar, onErro }) {
+function Card({ contrato, itens, medicoes, onVoltar, onAvancar, onErro, onAbrirFicha }) {
   const indiceColuna = COLUNAS.indexOf(contrato.status)
   const percentual = contrato.status === 'ativo' || contrato.status === 'concluido' ? percentualMedido(contrato, itens, medicoes) : 0
 
@@ -62,6 +64,9 @@ function Card({ contrato, itens, medicoes, onVoltar, onAvancar, onErro }) {
         {indiceColuna > 0 ? <button className="btn btn-secondary btn-sm" onClick={() => onVoltar(contrato)}>← Voltar</button> : null}
         {indiceColuna < COLUNAS.length - 1 ? <button className="btn btn-primary btn-sm" onClick={avancar}>Avançar →</button> : null}
       </div>
+      {contrato.status === 'ativo' ? (
+        <button className="btn btn-ghost btn-sm" onClick={() => onAbrirFicha(contrato)}>Ver ficha de medição</button>
+      ) : null}
     </div>
   )
 }
@@ -70,9 +75,11 @@ export default function Medicoes() {
   const [contratos, setContratos] = useState([])
   const [itensContrato, setItensContrato] = useState([])
   const [medicoes, setMedicoes] = useState([])
+  const [medicaoItens, setMedicaoItens] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erroCarga, setErroCarga] = useState('')
   const [erro, setErro] = useState('')
+  const [contratoAberto, setContratoAberto] = useState(null)
 
   const [mostrarNovo, setMostrarNovo] = useState(false)
   const [formNovo, setFormNovo] = useState(FORM_CONTRATO_VAZIO)
@@ -88,10 +95,11 @@ export default function Medicoes() {
     setCarregando(true)
     setErroCarga('')
     try {
-      const [c, i, m] = await Promise.all([listarContratos(), listarItensContrato(), listarMedicoes()])
+      const [c, i, m, mi] = await Promise.all([listarContratos(), listarItensContrato(), listarMedicoes(), listarMedicaoItens()])
       setContratos(c)
       setItensContrato(i)
       setMedicoes(m)
+      setMedicaoItens(mi)
     } catch (e) {
       setErroCarga('Não foi possível carregar os contratos. ' + e.message)
     } finally {
@@ -190,6 +198,15 @@ export default function Medicoes() {
 
   const totalEscopoDigitado = linhasEscopo.reduce((soma, l) => soma + (Number(l.quantidade) || 0) * (Number(l.precoUnitario) || 0), 0)
 
+  function abrirFicha(contrato) {
+    setContratoAberto(contrato.id)
+  }
+
+  function onMedicaoSalva(medicao, itensSalvos) {
+    setMedicoes((atual) => [...atual, medicao])
+    setMedicaoItens((atual) => [...atual, ...itensSalvos])
+  }
+
   if (carregando) return <div className="page-content t-caption">Carregando…</div>
 
   if (erroCarga) {
@@ -198,6 +215,29 @@ export default function Medicoes() {
         <div className="card-flat stack-2">
           <div className="t-caption" style={{ color: 'var(--danger)' }}>{erroCarga}</div>
           <button className="btn btn-secondary" onClick={carregar}>Tentar de novo</button>
+        </div>
+      </div>
+    )
+  }
+
+  if (contratoAberto) {
+    const contrato = contratos.find((c) => c.id === contratoAberto)
+    const itensDoContrato = itensContrato.filter((i) => i.contratoId === contratoAberto)
+    const medicoesDoContrato = medicoes.filter((m) => m.contratoId === contratoAberto)
+    const idsMedicoes = medicoesDoContrato.map((m) => m.id)
+    const medicaoItensDoContrato = medicaoItens.filter((mi) => idsMedicoes.includes(mi.medicaoId))
+    return (
+      <div>
+        <PageHeader title="Medições de Empreiteiros" subtitle="Ficha de medição" />
+        <div className="page-content">
+          <FichaMedicao
+            contrato={contrato}
+            itens={itensDoContrato}
+            medicoes={medicoesDoContrato}
+            medicaoItens={medicaoItensDoContrato}
+            onVoltar={() => setContratoAberto(null)}
+            onSalvo={onMedicaoSalva}
+          />
         </div>
       </div>
     )
@@ -235,6 +275,7 @@ export default function Medicoes() {
                           onVoltar={voltar}
                           onAvancar={avancar}
                           onErro={setErro}
+                          onAbrirFicha={abrirFicha}
                         />
                       ))
                     )}
